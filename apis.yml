@@ -1,0 +1,78 @@
+aid: lacework
+name: Lacework FortiCNAPP
+description: >-
+  Lacework (now Lacework FortiCNAPP under Fortinet) is a cloud-native
+  application protection platform (CNAPP) that delivers vulnerability
+  management, compliance, threat detection, posture management, and
+  workload protection across AWS, Azure, GCP, Kubernetes, and containers.
+  The platform uses behavioral analytics and machine learning on telemetry
+  to surface anomalies without per-rule tuning. The Lacework FortiCNAPP
+  REST API uses bearer-token authentication to manage policies, events,
+  alerts, resources, queries, and integrations programmatically.
+type: Index
+image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+tags:
+  - Cloud Security
+  - CNAPP
+  - Compliance
+  - Threat Detection
+  - Vulnerability Management
+  - Kubernetes
+  - Container Security
+url: >-
+  https://raw.githubusercontent.com/api-evangelist/lacework/refs/heads/main/apis.yml
+created: '2026-05-11'
+modified: '2026-05-11'
+specificationVersion: '0.19'
+apis:
+  - aid: lacework:rest-api-v2
+    name: Lacework FortiCNAPP API v2
+    description: >-
+      REST API for managing alerts, events, policies, queries, resources,
+      datasources, integrations, and compliance reports in a Lacework
+      FortiCNAPP tenant. Authentication uses bearer access tokens obtained
+      from API keys via the /api/v2/access/tokens endpoint.
+    humanURL: https://docs.fortinet.com/document/lacework-forticnapp/latest/api-reference/863111/about-the-lacework-forticnapp-api
+    baseURL: https://YourAccount.lacework.net/api/v2
+    tags:
+      - Cloud Security
+      - Alerts
+      - Policies
+      - Queries
+      - Datasources
+      - Compliance
+      - Bearer Token
+    properties:
+      - type: Documentation
+        url: https://docs.fortinet.com/document/lacework-forticnapp/latest/api-reference/863111/about-the-lacework-forticnapp-api
+      - type: OpenAPI
+        url: https://api.lacework.net/api/v2/docs/lacework-api-v2.0.yaml
+      - type: Authentication
+        url: https://docs.fortinet.com/document/lacework-forticnapp/latest/api-reference/932048/api-keys-and-access-tokens
+      - type: API Reference
+        url: https://api.lacework.net/api/v2/docs
+
+common:
+  - type: Website
+    url: https://www.lacework.com
+  - type: Documentation
+    url: https://docs.fortinet.com/product/lacework-forticnapp
+  - type: API Documentation
+    url: https://docs.fortinet.com/document/lacework-forticnapp/latest/api-reference
+  - type: Pricing
+    url: https://www.lacework.com/pricing
+  - type: Sign Up
+    url: https://www.lacework.com/request-trial/
+  - type: Login
+    url: https://login.lacework.net
+  - type: Support
+    url: https://support.lacework.com
+  - type: Blog
+    url: https://www.lacework.com/blog
+  - type: GitHub Organization
+    url: https://github.com/lacework
+  - type: CLI
+    url: https://github.com/lacework/go-sdk
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com
