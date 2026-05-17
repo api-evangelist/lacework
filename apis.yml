@@ -49,7 +49,7 @@ apis:
         url: https://api.lacework.net/api/v2/docs/lacework-api-v2.0.yaml
       - type: Authentication
         url: https://docs.fortinet.com/document/lacework-forticnapp/latest/api-reference/932048/api-keys-and-access-tokens
-      - type: API Reference
+      - type: APIReference
         url: https://api.lacework.net/api/v2/docs
 
 common:
@@ -61,7 +61,7 @@ common:
     url: https://docs.fortinet.com/document/lacework-forticnapp/latest/api-reference
   - type: Pricing
     url: https://www.lacework.com/pricing
-  - type: Sign Up
+  - type: SignUp
     url: https://www.lacework.com/request-trial/
   - type: Login
     url: https://login.lacework.net
@@ -69,7 +69,7 @@ common:
     url: https://support.lacework.com
   - type: Blog
     url: https://www.lacework.com/blog
-  - type: GitHub Organization
+  - type: GitHubOrganization
     url: https://github.com/lacework
   - type: CLI
     url: https://github.com/lacework/go-sdk
