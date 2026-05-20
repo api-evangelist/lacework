@@ -53,6 +53,8 @@ apis:
         url: https://api.lacework.net/api/v2/docs
 
 common:
+  - type: LinkedIn
+    url: https://www.linkedin.com/company/lacework
   - type: Website
     url: https://www.lacework.com
   - type: Documentation
