@@ -1,0 +1,1086 @@
+# Lacework FortiCNAPP GraphQL Schema
+# Conceptual schema derived from the Lacework FortiCNAPP REST API v2.
+# Source: https://docs.lacework.net/api/
+# Authentication: Bearer token via /api/v2/access/tokens
+
+# ─────────────────────────────────────────────
+# Scalars
+# ─────────────────────────────────────────────
+
+scalar DateTime
+scalar JSON
+
+# ─────────────────────────────────────────────
+# Enums
+# ─────────────────────────────────────────────
+
+enum SeverityLevel {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  INFO
+  UNKNOWN
+}
+
+enum AlertStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+  AUTO_CLOSED
+}
+
+enum CloudProvider {
+  AWS
+  AZURE
+  GCP
+  OCI
+  KUBERNETES
+}
+
+enum ComplianceStatus {
+  COMPLIANT
+  NON_COMPLIANT
+  SUPPRESSED
+  REQUIRES_MANUAL_ASSESSMENT
+}
+
+enum ResourceType {
+  EC2_INSTANCE
+  S3_BUCKET
+  RDS_INSTANCE
+  LAMBDA_FUNCTION
+  GCE_INSTANCE
+  AKS_CLUSTER
+  EKS_CLUSTER
+  GKE_CLUSTER
+  CONTAINER
+  IAM_USER
+  IAM_ROLE
+  STORAGE_ACCOUNT
+  VIRTUAL_MACHINE
+  UNKNOWN
+}
+
+enum IntegrationCategory {
+  CLOUD_ACCOUNT
+  ALERT_CHANNEL
+  DATASOURCE
+  CONTAINER_REGISTRY
+  PROXY
+}
+
+enum ProcessStatus {
+  RUNNING
+  STOPPED
+  ZOMBIE
+}
+
+enum ProtocolType {
+  TCP
+  UDP
+  ICMP
+  UNKNOWN
+}
+
+# ─────────────────────────────────────────────
+# Vulnerability Domain
+# ─────────────────────────────────────────────
+
+type CVE {
+  id: ID!
+  cveId: String!
+  description: String
+  publishedDate: DateTime
+  modifiedDate: DateTime
+  references: [String]
+  cvss: CVSS
+}
+
+type CVSS {
+  version: String!
+  baseScore: Float!
+  vector: String
+  exploitabilityScore: Float
+  impactScore: Float
+}
+
+type Severity {
+  level: SeverityLevel!
+  score: Float
+  source: String
+}
+
+type FixAvailable {
+  available: Boolean!
+  fixedVersion: String
+  fixedIn: String
+  remediation: String
+}
+
+type AffectedPackage {
+  name: String!
+  version: String!
+  ecosystem: String
+  filePath: String
+  fixAvailable: FixAvailable
+}
+
+type VulnerabilityDetails {
+  cve: CVE!
+  severity: Severity!
+  affectedPackages: [AffectedPackage]
+  fixAvailable: FixAvailable
+  hostCount: Int
+  containerCount: Int
+  exceptions: [String]
+  firstSeen: DateTime
+  lastSeen: DateTime
+}
+
+type Vulnerability {
+  id: ID!
+  vulnId: String!
+  details: VulnerabilityDetails
+  host: Host
+  container: Container
+  status: String
+  severity: Severity!
+  fixable: Boolean
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+# ─────────────────────────────────────────────
+# Container Domain
+# ─────────────────────────────────────────────
+
+type ImageLayer {
+  digest: String!
+  command: String
+  size: Int
+  createdAt: DateTime
+}
+
+type ContainerRegistry {
+  id: ID!
+  name: String!
+  registryUrl: String!
+  cloudProvider: CloudProvider
+  imageCount: Int
+  lastScanned: DateTime
+}
+
+type ContainerImage {
+  id: ID!
+  imageId: String!
+  digest: String
+  tags: [String]
+  repository: String
+  registry: ContainerRegistry
+  layers: [ImageLayer]
+  size: Int
+  createdAt: DateTime
+  vulnerabilities: [Vulnerability]
+  vulnerabilityCount: Int
+  criticalCount: Int
+  highCount: Int
+}
+
+type ContainerDetails {
+  image: ContainerImage
+  command: [String]
+  environmentVariables: JSON
+  mounts: [String]
+  ports: [NetworkPort]
+  labels: JSON
+  capabilities: [String]
+  privileged: Boolean
+  readOnlyRootFilesystem: Boolean
+  runAsUser: Int
+  runAsGroup: Int
+}
+
+type Container {
+  id: ID!
+  containerId: String!
+  name: String!
+  status: String
+  host: Host
+  cloudAccount: CloudAccount
+  details: ContainerDetails
+  vulnerabilities: [Vulnerability]
+  networkConnections: [NetworkConnection]
+  processes: [Process]
+  startTime: DateTime
+  endTime: DateTime
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+# ─────────────────────────────────────────────
+# Host and Cloud Domain
+# ─────────────────────────────────────────────
+
+type CloudAccount {
+  id: ID!
+  accountId: String!
+  accountAlias: String
+  cloudProvider: CloudProvider!
+  enabled: Boolean
+  orgId: String
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+type CloudInstance {
+  id: ID!
+  instanceId: String!
+  instanceType: String
+  region: String
+  availabilityZone: String
+  publicIpAddress: String
+  privateIpAddress: String
+  cloudAccount: CloudAccount
+  state: String
+  launchTime: DateTime
+  tags: [ResourceTag]
+}
+
+type AgentVersion {
+  version: String!
+  buildDate: DateTime
+  osType: String
+  archType: String
+}
+
+type AgentHealth {
+  status: String!
+  lastCheckin: DateTime
+  cpuUsage: Float
+  memoryUsage: Float
+  errors: [String]
+}
+
+type AgentData {
+  agentId: String!
+  version: AgentVersion
+  health: AgentHealth
+  installPath: String
+  configHash: String
+  mode: String
+}
+
+type HostDetails {
+  os: String
+  osVersion: String
+  architecture: String
+  kernelVersion: String
+  hostname: String
+  fqdn: String
+  cloudInstance: CloudInstance
+  agentData: AgentData
+  packages: [AffectedPackage]
+  users: [User]
+  groups: [Group]
+}
+
+type Host {
+  id: ID!
+  hostId: String!
+  name: String!
+  cloudAccount: CloudAccount
+  details: HostDetails
+  containers: [Container]
+  vulnerabilities: [Vulnerability]
+  networkConnections: [NetworkConnection]
+  processes: [Process]
+  alerts: [Alert]
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+# ─────────────────────────────────────────────
+# Compliance Domain
+# ─────────────────────────────────────────────
+
+type ComplianceRecommendation {
+  id: ID!
+  recommendationId: String!
+  title: String!
+  description: String
+  severity: Severity
+  category: String
+  rationale: String
+  remediation: String
+  references: [String]
+  affectedResources: [Resource]
+  status: ComplianceStatus
+}
+
+type CompliancePolicy {
+  id: ID!
+  policyId: String!
+  policyTitle: String!
+  policyDescription: String
+  framework: String!
+  frameworkVersion: String
+  section: String
+  category: String
+  recommendations: [ComplianceRecommendation]
+  enabled: Boolean
+}
+
+type ComplianceSummary {
+  totalControls: Int!
+  compliant: Int!
+  nonCompliant: Int!
+  suppressed: Int!
+  requiresManualAssessment: Int!
+  complianceScore: Float
+  criticalCount: Int
+  highCount: Int
+  mediumCount: Int
+  lowCount: Int
+}
+
+type ComplianceReport {
+  id: ID!
+  reportId: String!
+  reportName: String!
+  reportType: String!
+  cloudProvider: CloudProvider!
+  cloudAccount: CloudAccount
+  generatedAt: DateTime!
+  summary: ComplianceSummary
+  policies: [CompliancePolicy]
+  recommendations: [ComplianceRecommendation]
+}
+
+type Compliance {
+  id: ID!
+  cloudAccount: CloudAccount!
+  framework: String!
+  frameworkVersion: String
+  status: ComplianceStatus!
+  reports: [ComplianceReport]
+  latestReport: ComplianceReport
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+# ─────────────────────────────────────────────
+# Alert Domain
+# ─────────────────────────────────────────────
+
+type AlertSeverity {
+  level: SeverityLevel!
+  score: Int
+  label: String
+}
+
+type AlertSource {
+  id: ID!
+  type: String!
+  name: String
+  cloudProvider: CloudProvider
+  region: String
+  accountId: String
+}
+
+type AlertEvent {
+  id: ID!
+  eventId: String!
+  eventType: String
+  eventTime: DateTime
+  source: AlertSource
+  actor: String
+  action: String
+  targetResource: Resource
+  rawData: JSON
+}
+
+type PolicyAlert {
+  policyId: String!
+  policyName: String
+  policyDescription: String
+  policyTags: [String]
+  evaluationGuid: String
+  affectedResources: [Resource]
+}
+
+type ComplianceAlert {
+  framework: String!
+  section: String
+  recommendation: ComplianceRecommendation
+  affectedResources: [Resource]
+  previousStatus: ComplianceStatus
+  currentStatus: ComplianceStatus
+}
+
+type BehaviorAlert {
+  behaviorType: String!
+  baselineDeviation: Float
+  anomalyScore: Float
+  entityType: String
+  entityId: String
+  observedBehavior: JSON
+  expectedBehavior: JSON
+}
+
+type AnomalyAlert {
+  anomalyType: String!
+  model: String
+  score: Float
+  entityType: String
+  entityId: String
+  features: JSON
+  anomalyWindow: Int
+}
+
+type AttackEvent {
+  technique: String!
+  tactic: String
+  mitreTechniqueId: String
+  mitreTacticId: String
+  attackSource: String
+  attackTarget: String
+  severity: SeverityLevel
+  indicator: String
+}
+
+type Alert {
+  id: ID!
+  alertId: String!
+  status: AlertStatus!
+  severity: AlertSeverity!
+  alertType: String!
+  alertSource: AlertSource
+  title: String!
+  description: String
+  startTime: DateTime!
+  endTime: DateTime
+  events: [AlertEvent]
+  affectedResources: [Resource]
+  threat: Threat
+  policyAlert: PolicyAlert
+  complianceAlert: ComplianceAlert
+  behaviorAlert: BehaviorAlert
+  anomalyAlert: AnomalyAlert
+  attackEvent: AttackEvent
+  tags: JSON
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+# ─────────────────────────────────────────────
+# Threat and Cloud Activity Domain
+# ─────────────────────────────────────────────
+
+type ThreatIntelligence {
+  id: ID!
+  indicatorType: String!
+  indicatorValue: String!
+  threatCategory: String
+  confidence: Float
+  severity: SeverityLevel
+  source: String
+  firstSeen: DateTime
+  lastSeen: DateTime
+  references: [String]
+}
+
+type Threat {
+  id: ID!
+  threatId: String!
+  name: String!
+  description: String
+  severity: SeverityLevel!
+  tactics: [String]
+  techniques: [String]
+  intelligence: [ThreatIntelligence]
+  affectedResources: [Resource]
+  alerts: [Alert]
+  firstDetected: DateTime
+  lastDetected: DateTime
+}
+
+type CloudTrailEvent {
+  id: ID!
+  eventId: String!
+  eventName: String!
+  eventSource: String
+  eventTime: DateTime!
+  region: String
+  sourceIPAddress: String
+  userAgent: String
+  errorCode: String
+  errorMessage: String
+  requestParameters: JSON
+  responseElements: JSON
+  cloudAccount: CloudAccount
+  actor: User
+}
+
+type AuditLog {
+  id: ID!
+  logId: String!
+  action: String!
+  actor: String!
+  actorType: String
+  resource: String
+  resourceType: String
+  result: String
+  ipAddress: String
+  userAgent: String
+  accountId: String
+  timestamp: DateTime!
+  details: JSON
+}
+
+type ActivityType {
+  id: ID!
+  name: String!
+  description: String
+  category: ActivityCategory
+  riskScore: Float
+}
+
+type ActivityCategory {
+  id: ID!
+  name: String!
+  description: String
+  types: [ActivityType]
+}
+
+type CloudActivity {
+  id: ID!
+  activityId: String!
+  activityType: ActivityType
+  category: ActivityCategory
+  cloudAccount: CloudAccount
+  actor: User
+  targetResource: Resource
+  region: String
+  timestamp: DateTime!
+  anomalous: Boolean
+  anomalyScore: Float
+  rawEvent: CloudTrailEvent
+}
+
+# ─────────────────────────────────────────────
+# Resource Domain
+# ─────────────────────────────────────────────
+
+type ResourceTag {
+  key: String!
+  value: String
+}
+
+type ResourcePolicy {
+  id: ID!
+  policyId: String!
+  policyName: String
+  policyDocument: JSON
+  attached: Boolean
+  attachedEntities: [String]
+}
+
+type ResourceDetails {
+  resourceType: ResourceType!
+  cloudProvider: CloudProvider!
+  region: String
+  availabilityZone: String
+  configuration: JSON
+  relationships: JSON
+  networkInterfaces: [Network]
+  iamPolicies: [IAMPolicy]
+}
+
+type Resource {
+  id: ID!
+  resourceId: String!
+  resourceName: String
+  resourceType: ResourceType!
+  cloudAccount: CloudAccount
+  details: ResourceDetails
+  tags: [ResourceTag]
+  policies: [ResourcePolicy]
+  alerts: [Alert]
+  vulnerabilities: [Vulnerability]
+  compliant: Boolean
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+# ─────────────────────────────────────────────
+# IAM and User Domain
+# ─────────────────────────────────────────────
+
+type Permission {
+  id: ID!
+  action: String!
+  resource: String
+  effect: String
+  conditions: JSON
+}
+
+type IAMPolicy {
+  id: ID!
+  policyId: String!
+  policyName: String!
+  policyArn: String
+  policyDocument: JSON
+  permissions: [Permission]
+  attached: Boolean
+  attachedEntities: [String]
+  cloudAccount: CloudAccount
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+type IAMRole {
+  id: ID!
+  roleId: String!
+  roleName: String!
+  roleArn: String
+  description: String
+  assumeRolePolicyDocument: JSON
+  policies: [IAMPolicy]
+  cloudAccount: CloudAccount
+  lastUsed: DateTime
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+type Group {
+  id: ID!
+  groupId: String!
+  groupName: String!
+  description: String
+  cloudAccount: CloudAccount
+  members: [User]
+  policies: [IAMPolicy]
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+type IAMUser {
+  id: ID!
+  iamUserId: String!
+  userName: String!
+  userArn: String
+  cloudAccount: CloudAccount
+  groups: [Group]
+  policies: [IAMPolicy]
+  roles: [IAMRole]
+  mfaEnabled: Boolean
+  consoleAccessEnabled: Boolean
+  accessKeys: Int
+  lastConsoleLogin: DateTime
+  passwordLastChanged: DateTime
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+type UserDetails {
+  email: String
+  firstName: String
+  lastName: String
+  company: String
+  orgAdmin: Boolean
+  enabled: Boolean
+  lastLogin: DateTime
+  mfaEnabled: Boolean
+  cloudIdentities: [IAMUser]
+}
+
+type User {
+  id: ID!
+  userId: String!
+  username: String!
+  details: UserDetails
+  groups: [Group]
+  alerts: [Alert]
+  cloudActivities: [CloudActivity]
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+# ─────────────────────────────────────────────
+# Network Domain
+# ─────────────────────────────────────────────
+
+type NetworkProtocol {
+  name: String!
+  type: ProtocolType!
+  port: Int
+  description: String
+}
+
+type NetworkPort {
+  port: Int!
+  protocol: ProtocolType!
+  state: String
+  service: String
+}
+
+type NetworkConnection {
+  id: ID!
+  connectionId: String!
+  sourceHost: Host
+  destinationHost: Host
+  sourceContainer: Container
+  destinationContainer: Container
+  sourceIp: String
+  destinationIp: String
+  sourcePort: NetworkPort
+  destinationPort: NetworkPort
+  protocol: NetworkProtocol
+  bytesIn: Int
+  bytesOut: Int
+  packetsIn: Int
+  packetsOut: Int
+  timestamp: DateTime
+  duration: Int
+  anomalous: Boolean
+}
+
+type Network {
+  id: ID!
+  networkId: String!
+  interfaceName: String
+  ipAddresses: [String]
+  macAddress: String
+  subnetId: String
+  vpcId: String
+  securityGroups: [String]
+  cloudAccount: CloudAccount
+  connections: [NetworkConnection]
+  ports: [NetworkPort]
+}
+
+# ─────────────────────────────────────────────
+# Process Domain
+# ─────────────────────────────────────────────
+
+type ProcessBehavior {
+  behaviorType: String!
+  baselineCount: Int
+  observedCount: Int
+  anomalyScore: Float
+  firstSeen: DateTime
+  lastSeen: DateTime
+}
+
+type Process {
+  id: ID!
+  processId: Int!
+  name: String!
+  commandLine: String
+  executablePath: String
+  parentProcessId: Int
+  user: String
+  status: ProcessStatus
+  host: Host
+  container: Container
+  networkConnections: [NetworkConnection]
+  behaviors: [ProcessBehavior]
+  cpuUsage: Float
+  memoryUsage: Int
+  startTime: DateTime
+  endTime: DateTime
+}
+
+# ─────────────────────────────────────────────
+# Integration and Configuration Domain
+# ─────────────────────────────────────────────
+
+type Token {
+  id: ID!
+  tokenId: String!
+  tokenType: String!
+  expiresAt: DateTime
+  scopes: [String]
+  createdTime: DateTime
+}
+
+type APIKey {
+  id: ID!
+  keyId: String!
+  keyAlias: String
+  description: String
+  enabled: Boolean
+  createdBy: User
+  lastUsed: DateTime
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+type Webhook {
+  id: ID!
+  webhookId: String!
+  name: String!
+  url: String!
+  enabled: Boolean
+  alertTypes: [String]
+  minSeverity: SeverityLevel
+  headers: JSON
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+type IntegrationConfig {
+  id: ID!
+  integrationId: String!
+  name: String!
+  type: String!
+  category: IntegrationCategory!
+  enabled: Boolean
+  config: JSON
+  status: String
+  lastSync: DateTime
+  createdTime: DateTime
+  updatedTime: DateTime
+}
+
+type APIContext {
+  tenantId: String!
+  accountName: String!
+  region: String
+  apiVersion: String!
+  baseUrl: String!
+  tokenExpiry: DateTime
+  scopes: [String]
+}
+
+# ─────────────────────────────────────────────
+# Query Root
+# ─────────────────────────────────────────────
+
+type Query {
+  # API Context
+  apiContext: APIContext
+
+  # Vulnerabilities
+  vulnerability(id: ID!): Vulnerability
+  vulnerabilities(
+    severity: SeverityLevel
+    fixable: Boolean
+    hostId: ID
+    containerId: ID
+    startTime: DateTime
+    endTime: DateTime
+    limit: Int
+    offset: Int
+  ): [Vulnerability]
+
+  # Containers
+  container(id: ID!): Container
+  containers(
+    cloudAccountId: ID
+    hostId: ID
+    registryId: ID
+    imageId: ID
+    limit: Int
+    offset: Int
+  ): [Container]
+  containerImage(id: ID!): ContainerImage
+  containerImages(
+    registryId: ID
+    tag: String
+    hasVulnerabilities: Boolean
+    limit: Int
+    offset: Int
+  ): [ContainerImage]
+  containerRegistry(id: ID!): ContainerRegistry
+  containerRegistries(cloudProvider: CloudProvider, limit: Int, offset: Int): [ContainerRegistry]
+
+  # Hosts
+  host(id: ID!): Host
+  hosts(
+    cloudAccountId: ID
+    cloudProvider: CloudProvider
+    hasAgent: Boolean
+    limit: Int
+    offset: Int
+  ): [Host]
+
+  # Cloud Accounts and Instances
+  cloudAccount(id: ID!): CloudAccount
+  cloudAccounts(cloudProvider: CloudProvider, enabled: Boolean, limit: Int, offset: Int): [CloudAccount]
+  cloudInstance(id: ID!): CloudInstance
+  cloudInstances(cloudAccountId: ID, region: String, limit: Int, offset: Int): [CloudInstance]
+
+  # Compliance
+  compliance(id: ID!): Compliance
+  compliances(
+    cloudAccountId: ID
+    cloudProvider: CloudProvider
+    framework: String
+    status: ComplianceStatus
+    limit: Int
+    offset: Int
+  ): [Compliance]
+  complianceReport(id: ID!): ComplianceReport
+  complianceReports(
+    cloudAccountId: ID
+    cloudProvider: CloudProvider
+    reportType: String
+    startTime: DateTime
+    endTime: DateTime
+    limit: Int
+    offset: Int
+  ): [ComplianceReport]
+  compliancePolicy(id: ID!): CompliancePolicy
+  compliancePolicies(framework: String, enabled: Boolean, limit: Int, offset: Int): [CompliancePolicy]
+
+  # Alerts
+  alert(id: ID!): Alert
+  alerts(
+    status: AlertStatus
+    severity: SeverityLevel
+    alertType: String
+    cloudAccountId: ID
+    startTime: DateTime
+    endTime: DateTime
+    limit: Int
+    offset: Int
+  ): [Alert]
+
+  # Threats
+  threat(id: ID!): Threat
+  threats(
+    severity: SeverityLevel
+    startTime: DateTime
+    endTime: DateTime
+    limit: Int
+    offset: Int
+  ): [Threat]
+  threatIntelligence(indicatorType: String, indicatorValue: String, limit: Int, offset: Int): [ThreatIntelligence]
+
+  # Cloud Activity
+  cloudTrailEvent(id: ID!): CloudTrailEvent
+  cloudTrailEvents(
+    cloudAccountId: ID
+    eventName: String
+    actorId: ID
+    startTime: DateTime
+    endTime: DateTime
+    limit: Int
+    offset: Int
+  ): [CloudTrailEvent]
+  auditLog(id: ID!): AuditLog
+  auditLogs(
+    actor: String
+    action: String
+    startTime: DateTime
+    endTime: DateTime
+    limit: Int
+    offset: Int
+  ): [AuditLog]
+  cloudActivities(
+    cloudAccountId: ID
+    anomalous: Boolean
+    startTime: DateTime
+    endTime: DateTime
+    limit: Int
+    offset: Int
+  ): [CloudActivity]
+
+  # Resources
+  resource(id: ID!): Resource
+  resources(
+    resourceType: ResourceType
+    cloudAccountId: ID
+    cloudProvider: CloudProvider
+    compliant: Boolean
+    limit: Int
+    offset: Int
+  ): [Resource]
+
+  # IAM
+  user(id: ID!): User
+  users(enabled: Boolean, limit: Int, offset: Int): [User]
+  iamUser(id: ID!): IAMUser
+  iamUsers(cloudAccountId: ID, mfaEnabled: Boolean, limit: Int, offset: Int): [IAMUser]
+  iamRole(id: ID!): IAMRole
+  iamRoles(cloudAccountId: ID, limit: Int, offset: Int): [IAMRole]
+  iamPolicy(id: ID!): IAMPolicy
+  iamPolicies(cloudAccountId: ID, limit: Int, offset: Int): [IAMPolicy]
+  group(id: ID!): Group
+  groups(cloudAccountId: ID, limit: Int, offset: Int): [Group]
+
+  # Network
+  network(id: ID!): Network
+  networks(cloudAccountId: ID, limit: Int, offset: Int): [Network]
+  networkConnections(
+    hostId: ID
+    containerId: ID
+    anomalous: Boolean
+    startTime: DateTime
+    endTime: DateTime
+    limit: Int
+    offset: Int
+  ): [NetworkConnection]
+
+  # Processes
+  process(id: ID!): Process
+  processes(
+    hostId: ID
+    containerId: ID
+    anomalous: Boolean
+    limit: Int
+    offset: Int
+  ): [Process]
+
+  # Agents
+  agentData(hostId: ID!): AgentData
+
+  # Integrations
+  integrationConfig(id: ID!): IntegrationConfig
+  integrationConfigs(category: IntegrationCategory, enabled: Boolean, limit: Int, offset: Int): [IntegrationConfig]
+  webhook(id: ID!): Webhook
+  webhooks(enabled: Boolean, limit: Int, offset: Int): [Webhook]
+  apiKey(id: ID!): APIKey
+  apiKeys(enabled: Boolean, limit: Int, offset: Int): [APIKey]
+}
+
+# ─────────────────────────────────────────────
+# Mutation Root
+# ─────────────────────────────────────────────
+
+type Mutation {
+  # Alert management
+  updateAlertStatus(alertId: ID!, status: AlertStatus!): Alert
+  closeAlert(alertId: ID!, reason: String): Alert
+  addAlertComment(alertId: ID!, comment: String!): Alert
+
+  # Integration management
+  createIntegrationConfig(name: String!, type: String!, category: IntegrationCategory!, config: JSON!): IntegrationConfig
+  updateIntegrationConfig(id: ID!, name: String, enabled: Boolean, config: JSON): IntegrationConfig
+  deleteIntegrationConfig(id: ID!): Boolean
+
+  # Webhook management
+  createWebhook(name: String!, url: String!, alertTypes: [String], minSeverity: SeverityLevel): Webhook
+  updateWebhook(id: ID!, name: String, url: String, enabled: Boolean, alertTypes: [String], minSeverity: SeverityLevel): Webhook
+  deleteWebhook(id: ID!): Boolean
+
+  # API Key management
+  createAPIKey(alias: String!, description: String): APIKey
+  updateAPIKey(id: ID!, alias: String, enabled: Boolean): APIKey
+  deleteAPIKey(id: ID!): Boolean
+
+  # Compliance suppressions
+  suppressComplianceRecommendation(recommendationId: ID!, reason: String!, expiresAt: DateTime): ComplianceRecommendation
+  unsuppressComplianceRecommendation(recommendationId: ID!): ComplianceRecommendation
+
+  # User management
+  createUser(username: String!, email: String!, orgAdmin: Boolean): User
+  updateUser(id: ID!, enabled: Boolean, orgAdmin: Boolean): User
+  deleteUser(id: ID!): Boolean
+
+  # Token
+  createToken(keyId: String!, keySecret: String!, durationSeconds: Int): Token
+  revokeToken(tokenId: ID!): Boolean
+}
