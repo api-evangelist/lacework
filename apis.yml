@@ -8,7 +8,7 @@ description: Lacework (now Lacework FortiCNAPP under Fortinet) is a cloud-native
   FortiCNAPP REST API uses bearer-token authentication to manage policies, events,
   alerts, resources, queries, and integrations programmatically.
 type: Index
-image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
 tags:
 - Cloud Security
 - CNAPP
