@@ -60,7 +60,7 @@ common:
   url: https://docs.fortinet.com/document/lacework-forticnapp/latest/api-reference
 - type: Pricing
   url: https://www.lacework.com/pricing
-- type: SignUp
+- type: Signup
   url: https://www.lacework.com/request-trial/
 - type: Login
   url: https://login.lacework.net
