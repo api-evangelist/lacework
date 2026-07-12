@@ -50,6 +50,8 @@ apis:
   - url: graphql/lacework-graphql.md
     type: GraphQL
 common:
+- type: DomainSecurity
+  url: security/lacework-domain-security.yml
 - type: LinkedIn
   url: https://www.linkedin.com/company/lacework
 - type: Website
