@@ -45,6 +45,14 @@ apis:
   - Cloud Security
   - Alerts
   - Policies
+  - Query
+  - Data Sources
+  - Compliance
+  - Bearer Token
+  tags_raw:
+  - Cloud Security
+  - Alerts
+  - Policies
   - Queries
   - Datasources
   - Compliance
