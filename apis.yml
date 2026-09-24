@@ -77,8 +77,6 @@ apis:
     url: https://docs.fortinet.com/document/lacework-forticnapp/latest/api-reference/932048/api-keys-and-access-tokens
   - type: APIReference
     url: https://api.lacework.net/api/v2/docs
-  - url: graphql/lacework-graphql.md
-    type: GraphQL
 common:
 - type: DomainSecurity
   url: security/lacework-domain-security.yml
