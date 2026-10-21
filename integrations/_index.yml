@@ -57,3 +57,47 @@
     detected: '2026-10-20'
   status: not-a-workflow
   arazzo: null
+- slug: lacework-homebrew
+  label: Homebrew
+  partner: homebrew
+  partner_name: Homebrew
+  category: official CLI (Homebrew)
+  type: register
+  channel: package-registry
+  evidence: https://formulae.brew.sh/formula/lacework-cli
+  source: edge
+  relationship: distribution-channel
+  contract_reference:
+    register: Homebrew (public package index)
+    spec_file: null
+    packages:
+    - name: lacework-cli
+      kind: formula
+      version: 2.19.5
+      released: null
+      lapsed: false
+      page: https://formulae.brew.sh/formula/lacework-cli
+      cli: 'formula desc: CLI for managing Lacework'
+      repo_leg: github-org:lacework
+      publisher_leg: artifact-github-org:lacework
+      matched_by: github-org
+    current: true
+    signal_note: 'the provider''s own command-line tool on a package manager: distribution, not an integration;
+      lapsed = no release in 24 months or deprecated / disabled by the manager'
+    detected_by: sweep-official-clis.py
+    detected: '2026-10-20'
+  status: not-a-workflow
+  arazzo: null
+- slug: lacework-docker-hub-docker-verified-publisher
+  label: Docker Hub (docker-verified-publisher)
+  partner: docker-hub
+  partner_name: Docker Hub (docker-verified-publisher)
+  category: Docker Verified Publisher
+  type: marketplace
+  marketplace: docker-verified-publisher
+  channel: partner-built
+  evidence: https://hub.docker.com/u/lacework
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null
