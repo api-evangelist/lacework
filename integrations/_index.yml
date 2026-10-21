@@ -101,3 +101,42 @@
   relationship: platform-app
   status: not-a-workflow
   arazzo: null
+- slug: lacework-opentofu-opentofu-registry
+  label: OpenTofu (opentofu-registry)
+  partner: opentofu
+  partner_name: OpenTofu (opentofu-registry)
+  category: infrastructure-as-code provider registry listing
+  type: marketplace
+  marketplace: opentofu-registry
+  channel: partner-built
+  evidence: https://search.opentofu.org/provider/lacework/lacework
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null
+- slug: lacework-pulumi-pulumi-registry
+  label: Pulumi (pulumi-registry)
+  partner: pulumi
+  partner_name: Pulumi (pulumi-registry)
+  category: infrastructure-as-code provider registry listing
+  type: marketplace
+  marketplace: pulumi-registry
+  channel: partner-built
+  evidence: https://www.pulumi.com/registry/packages/lacework/
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null
+- slug: lacework-terraform-terraform-registry
+  label: Terraform (terraform-registry)
+  partner: terraform
+  partner_name: Terraform (terraform-registry)
+  category: infrastructure-as-code provider registry listing
+  type: marketplace
+  marketplace: terraform-registry
+  channel: partner-built
+  evidence: https://registry.terraform.io/providers/lacework/lacework
+  source: edge
+  relationship: platform-app
+  status: not-a-workflow
+  arazzo: null
